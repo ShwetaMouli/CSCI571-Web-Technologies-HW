@@ -1,0 +1,204 @@
+<--Parsing XML and displaying data-->
+<HTML>
+	<HEAD>
+		<TITLE>Input</TITLE>
+		<SCRIPT type="text/javascript">
+		var xmlDoc;
+		function loadXML(url) 
+		{
+			if (window.XMLHttpRequest)
+			{
+				// code for IE7+, Firefox, Chrome, Opera, Safari
+				xmlhttp=new XMLHttpRequest();
+			}
+			else
+			{
+				// code for IE6, IE5
+				xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
+			}
+
+			xmlhttp.open("GET",url,false); //open, send, responseXML are
+			xmlhttp.send(); //properties of XMLHTTPRequest 
+			xmlDoc=xmlhttp.responseXML;
+			return xmlDoc;
+		}
+	
+		function getXMLFile(url)
+		{
+			// check for no URL
+			if (url == "")
+			{
+				alert("No URL entered");
+				return false;
+			}
+
+			//continue
+			xmlData = loadXML(url);
+			xmlDoc=xmlhttp.responseXML;
+			if (!xmlData || !xmlDoc)
+			{
+				alert("File Does Not Exist");
+				return false;
+			}
+		
+			//Firefox specific
+			if (xmlData.getElementsByTagName("parsererror").length > 0)
+			{
+				alert("Error in XML File");
+				return false;
+			}
+
+			if (xmlData.getElementsByTagName("Listing").length < 1)
+			{
+				alert("No Listings in XML File");
+				return false;
+			}
+			else
+			{
+				generateHTMLResult(xmlData);				
+			}
+			
+		}
+	
+		function generateHTMLResult(xmlDoc)
+		{
+			html_text="<HTML><HEAD><TITLE>Real Estate Listings</TITLE></HEAD><BODY>";
+        	html_text += "<H2>Real Estate Listings</H2>";
+        	html_text += "<TABLE border='3'>";
+        	realEstate = xmlDoc.getElementsByTagName("Listing");
+			
+			error = true;
+		
+			for (i=0;i<realEstate.length;i++)
+			{
+						
+				if ((typeof (realEstate[i].getElementsByTagName("Location")[0]) == 'undefined') || (typeof (realEstate[i].getElementsByTagName("Location")[0].childNodes[0]) == 'undefined')) 
+					{	author = "Null";	}
+				else 
+					{ Location = realEstate[i].getElementsByTagName("Location")[0].childNodes[0].nodeValue; error = false; }
+
+				if ((typeof (realEstate[i].getElementsByTagName("ListingDetails")[0]) == 'undefined') || (typeof (realEstate[i].getElementsByTagName("ListingDetails")[0].childNodes[0]) == 'undefined')) 
+					{	author = "Null";	}
+				else 
+					{ ListingDetails = realEstate[i].getElementsByTagName("ListingDetails")[0].childNodes[0].nodeValue; error = false; }
+				
+				if ((typeof (realEstate[i].getElementsByTagName("StreetAddress")[0]) == 'undefined') || (typeof (realEstate[i].getElementsByTagName("StreetAddress")[0].childNodes[0]) == 'undefined')) 
+					{	author = "Null";	}
+				else 
+					{ StreetAddress = realEstate[i].getElementsByTagName("StreetAddress")[0].childNodes[0].nodeValue; error = false; }
+
+				if ((typeof (realEstate[i].getElementsByTagName("City")[0]) == 'undefined') || (typeof (realEstate[i].getElementsByTagName("City")[0].childNodes[0]) == 'undefined')) 
+					{ City = "Null"; }
+				else 
+					{ City = realEstate[i].getElementsByTagName("City")[0].childNodes[0].nodeValue; error = false; }
+
+				if ((typeof (realEstate[i].getElementsByTagName("State")[0]) == 'undefined') || (typeof (realEstate[i].getElementsByTagName("State")[0].childNodes[0]) == 'undefined')) 
+					{ State = "Null"; }
+				else 
+					{ State = realEstate[i].getElementsByTagName("State")[0].childNodes[0].nodeValue; error = false; }
+
+				if ((typeof (realEstate[i].getElementsByTagName("Zip")[0]) == 'undefined') || (typeof (realEstate[i].getElementsByTagName("Zip")[0].childNodes[0]) == 'undefined')) 
+					{ Zip = "Null"; }
+				else 
+					{ Zip = realEstate[i].getElementsByTagName("Zip")[0].childNodes[0].nodeValue; error = false; }
+
+				if ((typeof (realEstate[i].getElementsByTagName("Lat")[0]) == 'undefined') || (typeof (realEstate[i].getElementsByTagName("Lat")[0].childNodes[0]) == 'undefined')) 
+					{ Lat = "Null"; }
+				else 
+					{ Lat = realEstate[i].getElementsByTagName("Lat")[0].childNodes[0].nodeValue; error = false; }
+
+				if ((typeof (realEstate[i].getElementsByTagName("Long")[0]) == 'undefined') || (typeof (realEstate[i].getElementsByTagName("Long")[0].childNodes[0]) == 'undefined')) 
+					{ Long = "Null"; }
+				else 
+					{ Long = realEstate[i].getElementsByTagName("Long")[0].childNodes[0].nodeValue; error = false; }
+
+				if ((typeof (realEstate[i].getElementsByTagName("Status")[0]) == 'undefined') || (typeof (realEstate[i].getElementsByTagName("Status")[0].childNodes[0]) == 'undefined')) 
+					{ Status = "Null"; }
+				else 
+					{ Status = realEstate[i].getElementsByTagName("Status")[0].childNodes[0].nodeValue; error = false; }
+
+				if ((typeof (realEstate[i].getElementsByTagName("Price")[0]) == 'undefined') || (typeof (realEstate[i].getElementsByTagName("Price")[0].childNodes[0]) == 'undefined')) 
+					{ Price = "Null"; }
+				else 
+					{ Price = realEstate[i].getElementsByTagName("Price")[0].childNodes[0].nodeValue; error = false; }
+
+				if ((typeof (realEstate[i].getElementsByTagName("ListingUrl")[0]) == 'undefined') || (typeof (realEstate[i].getElementsByTagName("ListingUrl")[0].childNodes[0]) == 'undefined')) 
+					{ ListingUrl = "Null"; }
+				else 
+					{ ListingUrl = realEstate[i].getElementsByTagName("ListingUrl")[0].childNodes[0].nodeValue; error = false; }
+
+				if ((typeof (realEstate[i].getElementsByTagName("Image")[0]) == 'undefined') || (typeof (realEstate[i].getElementsByTagName("Image")[0].childNodes[0]) == 'undefined')) 
+					{ Image1 = "Null"; }
+				else 
+					{ Image1 = realEstate[i].getElementsByTagName("Image")[0].childNodes[0].nodeValue; error = false; }
+			
+				if ((typeof (realEstate[i].getElementsByTagName("Status")[0]) == 'undefined') || (typeof (realEstate[i].getElementsByTagName("Status")[0].childNodes[0]) == 'undefined')) 
+					{ Status = "Null"; }
+				else 
+					{ Status = realEstate[i].getElementsByTagName("Status")[0].childNodes[0].nodeValue; error = false; }
+			
+				if ((typeof (realEstate[i].getElementsByTagName("Price")[0]) == 'undefined') || (typeof (realEstate[i].getElementsByTagName("Price")[0].childNodes[0]) == 'undefined')) 
+					{ Price = "Null"; }
+				else 
+					{ Price = realEstate[i].getElementsByTagName("Price")[0].childNodes[0].nodeValue; error = false; }
+			
+				if ((typeof (realEstate[i].getElementsByTagName("ListingUrl")[0]) == 'undefined') || (typeof (realEstate[i].getElementsByTagName("ListingUrl")[0].childNodes[0]) == 'undefined')) 
+					{ ListingUrl = "Null"; }
+				else 
+					{ ListingUrl = realEstate[i].getElementsByTagName("ListingUrl")[0].childNodes[0].nodeValue; error = false; }
+			
+				
+				html_text += "<tr><th colspan=\"8\">Listing</th><tr>";
+				html_text += "<tr><th>Location</th><th>Street Address</th><th>City</th><th>State</th><th>Zip</th><th>Lat</th><th>Long</th></tr>"
+				html_text += "<td></td>"
+				html_text += "<td>"+StreetAddress+"</td>";
+				html_text += "<td>"+City+"</td>";
+				html_text += "<td>"+State+"</td>";
+				html_text += "<td>"+Zip+"</td>";
+				html_text += "<td>"+Lat+"</td>";
+				html_text += "<td>"+Long+"</td>";
+				html_text += "<tr><th>Details</th><th>Status</th><th>Price</th><th>URL</th><th colspan=\"3\">Image</th></tr>"
+				html_text += "<td></td>";
+				html_text += "<td>"+Status+"</td>";
+				html_text += "<td>"+Price+"</td>";
+				html_text += "<td>"+"<a href=\""+ListingUrl+"\">Link to listing</a></td>";
+
+			
+				if (Image1 == "N/A") { html_text += "<td>No image URL given</td>"; }
+				else { html_text += "<td colspan=\"3\"><img width=200 height=150 src=\""+Image1+"\" /></td>"; }
+			
+				html_text += "</tr>";
+			}
+
+			html_text += "</TABLE>"
+			html_text += "<NOSCRIPT>"
+			html_text += "</BO"+"DY></HTML>"
+		
+			if (error == true)
+			{
+				alert("Location tags are present but all of them contain no data.");
+				return false;
+			}
+		
+			result_window = window.open();
+			result_window.document.open();
+			result_window.document.write(html_text);
+			result_window.document.close();
+			
+		}
+	</SCRIPT>
+	</HEAD>
+	<BODY>
+		<CENTER>
+			<BR><BR>
+			<H3>Enter URL for Real Estate Catalog XML File</H3>
+			<BR>
+			<INPUT id="xmlFile" type="text" size="40"></INPUT>
+			<BR>
+			<BR>
+			<BUTTON onclick=getXMLFile(document.getElementById("xmlFile").value);>Submit Query</BUTTON>
+		</CENTER>
+		<NOSCRIPT>
+	</BODY>
+	
+</HTML>
