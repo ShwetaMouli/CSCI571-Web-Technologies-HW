@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html class="full" lang="en">
+<!-- Make sure the <html> tag is set to the .full CSS class. Change the background image in the full.css file. -->
+
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>Zillow House Search</title>
+
+    <!-- Bootstrap Core CSS -->
+    <!-- <link href="css/bootstrap.min.css" rel="stylesheet"> -->
+    <link href="css/bootstrap.css" rel="stylesheet">
+    <link href="/content/bootstrap.min.css?cdv=1" type="text/css" rel="stylesheet"/>
+    <link href="/content/themes/base/jquery-ui.css?cdv=1" type="text/css" rel="stylesheet"/>
+    <link href="/content/styles.css?cdv=1" type="text/css" rel="stylesheet"/>
+
+    <!-- Custom CSS -->
+    <link href="css/full.css" rel="stylesheet">
+    
+    <script src="../lib/jquery.js"></script>
+    <script src="jquery.validate.js"></script>
+    <script src="jquery.validate.min.js"></script>
+
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min.js"></script>
+    <script src="http://ajax.aspnetcdn.com/ajax/jquery.validate/1.11.1/jquery.validate.min.js"></script>
+    <script type="text/javascript">
+
+      $(document).ready(function(){
+
+      $('#infoForm').submit(function(event) {
+        event.preventDefault();
+        validateForm();
+
+    });
+        
+
+    });
+
+    function validateForm() {
+        
+            $('#infoForm').validate({
+        rules: {
+            streetAddress: {
+                required: true
+            },
+            City: {
+                required: true
+            },
+            State: {
+                required: true
+            }
+        },
+        highlight: function(element) {
+            $(element).closest('.input-group').addClass('has-error');
+        },
+        unhighlight: function(element) {
+            $(element).closest('.input-group').removeClass('has-error');
+        },
+        errorElement: 'div',
+        errorClass: 'help-block',
+        errorPlacement: function(error, element) {
+            if(element.parent('.form-control').length) {
+                error.insertAfter(element.parent());
+            } else {
+                error.insertAfter(element);
+            }
+        },
+
+        });
+        //alert("In Validate funtion");
+        if($("#infoForm").valid() == true)
+        {
+            //alert("Validating");
+            processForm();
+        }
+
+        }
+    
+    function processForm( e )
+    { 
+        var streetAddress = document.getElementById("streetAddress").value;
+        var City = document.getElementById("City").value;
+        var State = document.getElementById("State").value;
+        //alert("entered func");
+        if($("#infoForm").valid()==true)
+        {
+            var request = $.ajax({
+                    url: "http://csci571hw08-env.elasticbeanstalk.com/",
+                    type: "GET",           
+                    dataType: "html",
+                    data: ({streetAddress: streetAddress, City: City, State: State})
+                });
+
+                request.done(function(msg) {
+                    
+                    try 
+                    {
+                      jsonObject = JSON.parse(msg);
+                    } 
+                    catch(e)
+                    {
+                       console.error("Parsing error:", e);
+                       alert("Invalid JSON string.");
+                    }
+                    if(jsonObject!=null)
+                    {
+                    var tableTab = document.getElementById("product-table");
+                    tableTab.style.visibility="visible";
+                    var table = document.getElementById("myTable");
+                    table.innerHTML = "";
+                    var row = table.insertRow(0);
+                    var cell1 = row.insertCell(0);
+                    var cell2 = row.insertCell(1);
+                    var hyperLinkShare = jsonObject.hyperlink;
+                    cell1.colSpan = "3";
+                    cell1.innerHTML = "See more details for "+"<a href=\""+jsonObject.hyperlink+"\" style=\"text-decoration: none; font-weight: bold; color: orange;\">"+streetAddress+", "+City+", "+State+"-"+jsonObject.zip+"</a> on Zillow.";
+                    cell2.style.textAlign="right";
+                    //cell2.innerHTML = "<a href=\"https://www.facebook.com/sharer/sharer.php?u="+jsonObject.hyperlink+"\" target=\"_blank\"><img src=\"http://longnow.org/revive/wp-content/uploads/2013/05/facebook-share-button.png\" style=\"height:30px; width:100px;\"/></a>";
+                    //cell2.innerHTML = "<div class=\"fb-share-button\" id=\"fb_share\" data-href=\"https://developers.facebook.com/docs/plugins/\" data-layout=\"button\"></div>";
+                    addressFull=streetAddress+", "+City+", "+State+"-"+jsonObject.zip;
+                    cell2.innerHTML = "<img src=\"http://4.bp.blogspot.com/_xDpoN6UfFFY/SunObySF9VI/AAAAAAAABBs/pOLqKE_M0n0/s320/Facebook3.png\" onClick=\"setStatusThroughFBUI(addressFull, jsonObject.lastSoldPrice, jsonObject.thirtyDayValue, jsonObject.xmlImg1URL, jsonObject.hyperlink)\"/>";
+
+                    row=table.insertRow(1);
+                    cell1=row.insertCell(0);
+                    cell1.innerHTML = "Property Type";
+                    cell1.style.width="15%";
+                    cell2=row.insertCell(1);
+                    cell2.style.width="15%";
+                    cell2.style.textAlign = "right";
+                    cell2.innerHTML = jsonObject.propertyType;
+                    cell3=row.insertCell(2);
+                    cell3.style.width="35%";
+                    cell3.innerHTML = "Last Sold Price";
+                    cell4=row.insertCell(3);
+                    cell4.style.width="35%";
+                    cell4.style.textAlign = "right";
+                    cell4.innerHTML = jsonObject.lastSoldPrice;
+                    
+                    row=table.insertRow(2);
+                    cell1=row.insertCell(0);
+                    cell1.innerHTML = "Year Built";
+                    cell1.style.width="15%";
+                    cell2=row.insertCell(1);
+                    cell2.style.width="15%";
+                    cell2.style.textAlign = "right";
+                    cell2.innerHTML = jsonObject.yearBuilt;
+                    cell3=row.insertCell(2);
+                    cell3.style.width="35%";
+                    cell3.innerHTML = "Last Sold Date";
+                    cell4=row.insertCell(3);
+                    cell4.style.width="35%";
+                    cell4.style.textAlign = "right";
+                    cell4.innerHTML = jsonObject.lastSoldDate;
+                    
+                    row=table.insertRow(3);
+                    cell1=row.insertCell(0);
+                    cell1.innerHTML = "Lot Size";
+                    cell1.style.width="15%";
+                    cell2=row.insertCell(1);
+                    cell2.style.width="15%";
+                    cell2.style.textAlign = "right";
+                    cell2.innerHTML = jsonObject.lotSize+" sq. ft.";
+                    cell3=row.insertCell(2);
+                    cell3.style.width="35%";
+                    cell3.innerHTML = "Zestimate &copy; Property Estimate as of "+jsonObject.LUprintDate;
+                    cell4=row.insertCell(3);
+                    cell4.style.width="35%";
+                    cell4.style.textAlign = "right";
+                    cell4.innerHTML = jsonObject.lastSoldPrice;
+
+                    row=table.insertRow(4);
+                    cell1=row.insertCell(0);
+                    cell1.innerHTML = "Finished Area";
+                    cell1.style.width="15%";
+                    cell2=row.insertCell(1);
+                    cell2.style.width="15%";
+                    cell2.style.textAlign = "right";
+                    cell2.innerHTML = jsonObject.finishedArea+" sq. ft.";
+                    cell3=row.insertCell(2);
+                    cell3.style.width="35%";
+                    cell3.innerHTML = "30 Days Overall Change";
+                    cell4=row.insertCell(3);
+                    cell4.style.width="35%";
+                    cell4.style.textAlign = "right";
+                    cell4.innerHTML = "<img src=\""+jsonObject.thirtyImage+"\"></img>"+jsonObject.thirtyDayValue;
+
+                    row=table.insertRow(5);
+                    cell1=row.insertCell(0);
+                    cell1.innerHTML = "Bathrooms";
+                    cell1.style.width="15%";
+                    cell2=row.insertCell(1);
+                    cell2.style.width="15%";
+                    cell2.style.textAlign = "right";
+                    cell2.innerHTML = jsonObject.bathrooms;
+                    cell3=row.insertCell(2);
+                    cell3.style.width="35%";
+                    cell3.innerHTML = "All Time Property Range";
+                    cell4=row.insertCell(3);
+                    cell4.style.width="35%";
+                    cell4.style.textAlign = "right";
+                    cell4.innerHTML = jsonObject.allTimeRange;
+
+                    row=table.insertRow(6);
+                    cell1=row.insertCell(0);
+                    cell1.innerHTML = "Bedrooms";
+                    cell1.style.width="15%";
+                    cell2=row.insertCell(1);
+                    cell2.style.width="15%";
+                    cell2.style.textAlign = "right";
+                    cell2.innerHTML = jsonObject.bedrooms;
+                    cell3=row.insertCell(2);
+                    cell3.style.width="35%";
+                    cell3.innerHTML = "Rent Zestimate &copy; Valuation as of "+jsonObject.RZprintDate+":";
+                    cell4=row.insertCell(3);
+                    cell4.style.width="35%";
+                    cell4.style.textAlign = "right";
+                    cell4.innerHTML = jsonObject.rzestimate;
+
+                    row=table.insertRow(7);
+                    cell1=row.insertCell(0);
+                    cell1.innerHTML = "Tax Assessment Year:";
+                    cell1.style.width="15%";
+                    cell2=row.insertCell(1);
+                    cell2.style.width="15%";
+                    cell2.style.textAlign = "right";
+                    cell2.innerHTML = jsonObject.taxAssessmentYear;
+                    cell3=row.insertCell(2);
+                    cell3.style.width="35%";
+                    cell3.innerHTML = "30 Day Rent Change: ";
+                    cell4=row.insertCell(3);
+                    cell4.style.width="35%";
+                    cell4.style.textAlign = "right";
+                    cell4.innerHTML = "<img src=\""+jsonObject.thirtyRentImage+"\"></img>"+jsonObject.thirtyDayRent;
+
+                    row=table.insertRow(8);
+                    cell1=row.insertCell(0);
+                    cell1.innerHTML = "Tax Assessment:";
+                    cell1.style.width="15%";
+                    cell2=row.insertCell(1);
+                    cell2.style.width="15%";
+                    cell2.style.textAlign = "right";
+                    cell2.innerHTML = jsonObject.taxAssessment;
+                    cell3=row.insertCell(2);
+                    cell3.style.width="35%";
+                    cell3.innerHTML = "All Time Rent Range:";
+                    cell4=row.insertCell(3);
+                    cell4.style.width="35%";
+                    cell4.style.textAlign = "right";
+                    cell4.innerHTML = jsonObject.allTimeRentRange;
+                    
+                    var Hist1 = document.getElementById("img1");
+                    Hist1.src=jsonObject.xmlImg1URL;
+
+                    var Hist2 = document.getElementById("img2");
+                    Hist2.src=jsonObject.xmlImg2URL;
+
+                    var Hist3 = document.getElementById("img3");
+                    Hist3.src=jsonObject.xmlImg3URL;
+
+                    document.getElementById("imgH1").innerHTML = streetAddress+", "+City+", "+State+"-"+jsonObject.zip;
+                    document.getElementById("imgH2").innerHTML = streetAddress+", "+City+", "+State+"-"+jsonObject.zip;
+                    document.getElementById("imgH3").innerHTML = streetAddress+", "+City+", "+State+"-"+jsonObject.zip;
+
+
+                    //tab1.innerHTML = table;
+
+                    //cell2.innerHTML = "NEW CELL2";
+                    //$("#resultTable").html(jsonObject.hyperlink);
+                    $('#product-table a:first').tab('show'); 
+                    var disclaimer =document.createElement("div");
+                    disclaimer.innerHTML="<div style=\"text-align: center\"><p> &copy; Zillow, Inc., 2006-2014. Use is subject to <a href=\"http://www.zillow.com/corp/Terms.htm\">Terms of Use</a><br><a href = \"http://www.zillow.com/zestimate/\">What's a Zestimate?</a></p></center></div>";
+                    document.getElementById("bodyDiv").appendChild(disclaimer);
+
+                }
+                else
+                {
+                    document.getElementById("bodyDiv").innerHTML = "<p style=\"text-align:center; font-weight:bold; color:blue;\">No Exact Match Found</p>";
+                }
+                    //alert(msg);          
+                });
+
+                request.fail(function(jqXHR, textStatus) {
+                    alert( "Request failed: " + textStatus );
+                }); 
+            
+            
+
+        }
+    }
+
+        function login(addr, lsp, thirtychange, imgshow, link) {
+          FB.login(function(response) {
+              if (response.authResponse) {
+                  // User authorized app
+              } else {
+                  // User cancelled login or did not fully authorize
+              }
+          }, {scope: 'publish_stream'});
+          
+          setStatusThroughFBUI(addr, lsp, thirtychange, imgshow, link);
+        }
+        
+        function setStatusThroughFBUI(addr, lsp, thirtychange, imgshow, link) {
+          var text, obj;
+          var obj = {
+            method: 'feed',       
+            link: link,
+                name: addr,
+                caption: 'Property Information from Zillow.com',
+                description: "Last Sold Price: "+lsp+", Thirty Days Overall Change: "+thirtychange,
+                picture: imgshow
+            };
+                
+            function callback(response) {
+                alert("Post ID: " + response['post_id']);
+            }
+         
+            FB.ui(obj, callback);
+        }
+    
+        
+    </script>
+    <style type="text/css">
+
+        .carousel-caption {
+              
+              width:100%!important;             
+              left:0;
+              bottom:0;
+              margin-top: 350px;
+              text-align:left;
+              background-color: rgba(151,151,151,0.5)!important;
+        }
+
+        li a
+        {
+        background-color:orange;
+        }
+
+        .tab-content .tab-pane
+        {border:solid 1px orange;}
+
+        .carousel-indicators .active
+        {
+            background-color:orange;
+        }
+
+        div a
+        {
+            color:orange;
+        }
+
+         
+    </style>
+    
+
+</head>
+
+<body class = "full">
+    <div id="fb-root"></div>
+    <script>
+      window.fbAsyncInit = function() {
+        FB.init({
+          appId      : '1510526122522059',
+          xfbml      : true,
+          version    : 'v2.1'
+        });
+      };
+
+      (function(d, s, id){
+         var js, fjs = d.getElementsByTagName(s)[0];
+         if (d.getElementById(id)) {return;}
+         js = d.createElement(s); js.id = id;
+         js.src = "//connect.facebook.net/en_US/sdk.js";
+         fjs.parentNode.insertBefore(js, fjs);
+       }(document, 'script', 'facebook-jssdk'));
+    </script>
+
+    <!-- Put your page content here! -->
+    <div style="color:orange; background-color:transparent; margin-top: -30px; margin-left: 10px;">
+        <h2>Search Your Property Here</h2>
+    </div>
+
+    <form class="form-inline" id="infoForm">
+    <div class="form-group" style="vertical-align:top;">
+        <label class="control-label" for="streetAddress" style="vertical-align:top; margin-left:10px; font-size: 12pt; color:orange; font-weight: bold;">Street Address*:</label>
+        <div class="input-group">
+            <!-- <span class="input-group-addon">$</span> -->
+            <input class="form-control" placeholder="Street Address" name="streetAddress" id = "streetAddress" type="text" />
+        </div>
+    </div>
+        
+    <div class="form-group" style="vertical-align:top;">
+        <label class="control-label" for="City" style="vertical-align:top; margin-left:50px; font-size: 12pt; color:orange; font-weight: bold;">City*:</label>
+        <div class="input-group">
+            <!-- <span class="input-group-addon">€</span> -->
+            <input class="form-control" placeholder="City" id="City" name="City" type="text" />
+        </div>
+    </div>
+
+    <div class="form-group" style="vertical-align:top;">
+        <label class="control-label" for="State" style="vertical-align:top; margin-left:50px; font-size: 12pt; color:orange; font-weight: bold;">State*:</label>
+        <div class="input-group">
+            <!-- <span class="input-group-addon">€</span> -->
+            <select name="State" id="State" class="form-control" style="display:inline; ">
+            <option selected="true"></option>
+            <option value="AL">AL</option>
+            <option value="AK">AK</option>
+            <option value="AZ">AZ</option>
+            <option value="AR">AR</option>
+            <option value="CA">CA</option>
+            <option value="CO">CO</option>
+            <option value="CT">CT</option>
+            <option value="DE">DE</option>
+            <option value="DC">DC</option>
+            <option value="FL">FL</option>
+            <option value="GA">GA</option>
+            <option value="HI">HI</option>
+            <option value="ID">ID</option>
+            <option value="IL">IL</option>
+            <option value="IN">IN</option>
+            <option value="IA">IA</option>
+            <option value="KS">KS</option>
+            <option value="KY">KY</option>
+            <option value="LA">LA</option>
+            <option value="ME">ME</option>
+            <option value="MD">MD</option>
+            <option value="MA">MA</option> 
+            <option value="MI">MI</option>
+            <option value="MN">MN</option>
+            <option value="MS">MS</option>
+            <option value="MO">MO</option>
+            <option value="MT">MT</option>
+            <option value="NE">NE</option>
+            <option value="NV">NV</option>
+            <option value="NH">NH</option> 
+            <option value="NJ">NJ</option>
+            <option value="NM">NM</option>
+            <option value="NY">NY</option>
+            <option value="NC">NC</option>
+            <option value="ND">ND</option>
+            <option value="OH">OH</option>
+            <option value="OK">OK</option>
+            <option value="OR">OR</option>
+            <option value="PA">PA</option> 
+            <option value="RI">RI</option>
+            <option value="SC">SC</option>
+            <option value="SD">SD</option>
+            <option value="TN">TN</option>
+            <option value="TX">TX</option>
+            <option value="UT">UT</option>
+            <option value="VT">VT</option>
+            <option value="VA">VA</option>
+            <option value="WA">WA</option>
+            <option value="WV">WV</option>
+            <option value="WI">WI</option>
+            <option value="WY">WY</option>
+            </select>
+        </div>
+    </div>
+    
+    <button type="submit" class="btn btn-primary" style="vertical-align:top; margin-left:50px; font-size: 12pt; color:white; background-color:orange; font-weight: bold;">Submit</button>
+
+    <img src="http://www.zillow.com/widgets/GetVersionedResource.htm?path=/static/logos/Zillowlogo_150x40_rounded.gif" width="150" height="40" alt="Zillow Real Estate Search" align="center" style="margin-left:100px;" />
+    </form>
+
+    <br/>
+    <br/>
+    <hr>
+    <br/>
+    <br/>
+
+    <ul class="nav nav-tabs" id="product-table" style="width:90%;margin-left:auto;margin-right:auto; visibility:hidden;">
+      <li><a href="#1" class = "active" data-toggle="tab">Basic Info</a>
+       <!--  <table id="myTable" class="table table-striped table-bordered" style="width:90%;margin-left:auto;margin-right:auto;"></table> -->
+      </li>
+      <li><a href="#2" data-toggle="tab">Historical Zestimates</a>
+      </li>
+    </ul>
+
+    <div class="tab-content" id="bodyDiv">
+        <div class="tab-pane" id="1" style="background-color:white; width:90%;margin-left:auto;margin-right:auto;">
+            <br/>
+          <table class="table table-condensed table-bordered table-striped table-responsive volumes" id="myTable" style="width:95%;margin-left:auto;margin-right:auto;">
+          </table>
+          <br/>
+      </div>
+      <div class="tab-pane" id="2" style="width:90%; text-align:right; margin-left:auto;margin-right:auto;">
+            <div id="carousel-example-generic" class="carousel slide" data-ride="carousel" style="background-color:white; width:100%; margin-left:auto;margin-right:auto; text-align:right;">
+              
+              <ol class="carousel-indicators" style="text-align:right!important; color:orange;">
+                <li data-target="#carousel-example-generic" data-slide-to="0" class="active" style="align:right!important; border-color:orange;"></li>
+                <li data-target="#carousel-example-generic" data-slide-to="1" style="align:right!important; border-color:orange;"></li>
+                <li data-target="#carousel-example-generic" data-slide-to="2" style="margin-right:0px; border-color:orange;"></li>
+              </ol>
+             
+              
+              <div class="carousel-inner caption-right" style="width:100%; ">
+                <div class="item active" style="width:100%; text-align:right!important;">
+                  <img id="img1" src="http://placehold.it/1200x315" alt="..." style="margin-left: auto; margin-right: auto;">
+                  <div class="carousel-caption caption-left" style="width:100%;">
+                        <h3>Historical Zestimates for the past 1 year</h3>
+                        <h4 id="imgH1"></h4>
+                  </div>
+                </div>
+                <div class="item" style="width:100%; text-align:right!important;">
+                  <img id="img2" src="http://placehold.it/1200x315" alt="..." style="margin-left: auto; margin-right: auto;">
+                  <div class="carousel-caption caption-left">
+                      <h3>Historical Zestimates for the past 5 years</h3>
+                      <h4 id="imgH2"></h4>
+                  </div>  
+                </div>
+                <div class="item" style="width:100%; text-align:right; ">
+                  <img id="img3" src="http://placehold.it/1200x315" alt="..." style="margin-left: auto; margin-right: auto;">
+                  <div class="carousel-caption caption-left" style="width:100%;">
+                      <h3>Historical Zestimates for the past 10 years</h3>
+                      <h4 id="imgH3"></h4>
+                  </div>
+                </div>
+              </div>
+              
+              
+              <a class="left carousel-control" href="#carousel-example-generic" role="button" data-slide="prev">
+                <span class="glyphicon glyphicon-chevron-left"></span>
+              </a>
+              <a class="right carousel-control" href="#carousel-example-generic" role="button" data-slide="next">
+                <span class="glyphicon glyphicon-chevron-right"></span>
+              </a>
+            </div> 
+            
+
+             
+        </div>
+  </div>
+    
+    
+    
+    
+
+    <!-- jQuery -->
+    <script src="js/jquery.js"></script>
+
+    <!-- Bootstrap Core JavaScript -->
+    <script src="js/bootstrap.min.js"></script>
+    <NOSCRIPT>
+</body>
+
+</html>
